@@ -1,131 +1,85 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef struct Celula {
-  int valor;
-  struct Celula *proximo;
+typedef struct Celula{
+    struct Celula *anterior;
+    int valor;
+    struct Celula *proximo;
 } Celula;
 
 typedef struct{
-  Celula *primeira;
-  int qtde;
+    Celula *primeiro;
+    int qtde;
 } Lista;
 
-Lista *inicializa_lista(){
-  Lista *lista = malloc(sizeof(Lista));
-  lista->primeira = NULL;
-  lista->qtde =  0;
-  return lista;
+Celula *criar_celula(int valor){
+    Celula *celula = malloc(sizeof(Celula));
+    celula->anterior = NULL;
+    celula->valor = valor;
+    celula->proximo = NULL;
+    return celula;
 }
 
-Celula *inicializa_celula(int valor){
-  Celula *celula = malloc(sizeof(Celula)); 
-  celula -> proximo = NULL;
-  celula -> valor = valor;
-  return celula;
+Lista *criar_lista(){
+    Lista *lista = malloc(sizeof(Lista));
+    lista->primeiro = NULL;
+    lista->qtde = 0;
+    return lista;
 }
-
-Celula *busca(Lista *lista, int valor){
-  Celula *atual = lista -> primeira;
-  while(atual != NULL){
-    if(atual -> valor == valor){
-      return atual;
-    }
-    atual = atual -> proximo;
-  }
-}
-
-
-
 
 void inserir(Lista *lista, int valor){
-  Celula *nova = inicializa_celula(valor);
-  Celula *atual = lista -> primeira;
-  Celula *anterior = NULL;
-
-  if(valor % 2 != 0){
-    while (atual != NULL && atual->valor % 2 != 0 &&       nova->valor >= atual->valor){
-      anterior = atual;
-      atual = atual -> proximo;
-    }
-  } else{
-    while (atual != NULL && (atual->valor % 2 == 0 && nova->valor <= atual->valor || atual->valor % 2 != 0)){
-      anterior = atual;
-      atual = atual -> proximo;
-    }
-  }
-  
-  if(lista -> qtde == 0){
-    lista -> primeira = nova;
-    lista->qtde++;
-  } else{
-    while(atual != NULL && nova->valor >= atual->valor){
-      anterior = atual;
-      atual = atual->proximo;
-    }
-    if(anterior == NULL){
-      nova->proximo = lista->primeira;
-      lista->primeira = nova;
-      lista->qtde++;
+    Celula *novo = criar_celula(valor);
+    //insere no inicio	vazia
+    if(lista->primeiro == NULL){
+        lista->primeiro = novo;
     } else{
-      if(atual == NULL){
-        anterior->proximo = nova;
-        lista->qtde++;
-      }else{
-        anterior->proximo = nova;
-        nova->proximo = atual;
-        lista->qtde++;
-      }
+        Celula *atual = lista->primeiro;
+        Celula *anterior = NULL;
+
+        while(atual != NULL && atual->valor <= novo->valor){
+            anterior = atual;
+            atual = atual->proximo;
+        } 
+        //insercao no inicio da lista
+        if(anterior == NULL){
+            lista->primeiro = novo;
+            novo->proximo = atual;
+            atual->anterior = novo;
+        }
+        //insercao no final da lista
+        else if(atual == NULL){
+            anterior->proximo = novo;
+            novo->anterior = anterior;
+        }
+        //insercao no meio
+        else{
+            anterior-> proximo = novo;
+            novo->anterior = anterior;
+            atual->anterior = novo;
+            novo->proximo = atual;
+        }
     }
-  }
+    lista->qtde++;
 }
 
 void mostrar(Lista *lista){
-  Celula *atual = lista->primeira;
-  while(atual != NULL){
-    printf("%d ", atual->valor); 
-    atual = atual->proximo;
-  }
-  printf("\n");
-}
-
-
-void remover(Lista *lista, int valor){
-  Celula *atual = lista->primeira;
-  Celula *anterior = NULL;
-  while(atual != NULL && atual->valor != valor){
-    anterior = atual;
-    atual = atual->proximo;
-  }
-  if(anterior == NULL){
-    lista->primeira = atual->proximo;
-  }
-  else if(atual == NULL){
-    anterior->proximo = NULL;
-  }
-  else{
-    anterior->proximo = atual->proximo;
-  }
- 
-  
+    Celula *atual = lista->primeiro;
+    printf("Inicio -> ");
+    while(atual != NULL){
+        printf("%d\n", atual->valor);
+        atual = atual->proximo;
+    }
+    printf("<- Final\n");
 }
 
 int main(void) {
-    Lista *l = inicializa_lista();
-    int valores[] = {2, 1, 0, 9, 3, 8, 5, 7, 6, 4};
-
-    // Inserção
-    for (int i = 0; i < 10; i++) {
-        inserir(l, valores[i]);
-        mostrar(l);
+    
+    Lista *lista = criar_lista();
+    for(int i = 0; i < 20; i++){
+        inserir(lista, i);
+        mostrar(lista);
     }
 
-    // Remoção
-    for (int i = 0; i < 10; i++) {
-        remover(l, valores[i]);
-        mostrar(l);
-    }
 
-    free(l); // Liberar memória alocada para a lista
     return 0;
 }
