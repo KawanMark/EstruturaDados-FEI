@@ -82,7 +82,8 @@ int main(void) {
   Lista *pl = &lista;
   int valores[] = {21, 14, 13, 10, 87, 35, 27, 56, 85, 29};
 
-  for(int i = 0 ; i < TAM ; i++){
+  for(int i = 0 ; 
+  i < TAM ; i++){
     inserir(pl, valores[i]);
     exibir_lista(pl);
   }

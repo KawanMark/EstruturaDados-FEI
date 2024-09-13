@@ -66,7 +66,7 @@ void mostrar(Lista *lista){
     Celula *atual = lista->primeiro;
     printf("Inicio -> ");
     while(atual != NULL){
-        printf("%d\n", atual->valor);
+        printf("%d ", atual->valor);
         atual = atual->proximo;
     }
     printf("<- Final\n");
@@ -80,6 +80,7 @@ int main(void) {
         mostrar(lista);
     }
 
+    
 
     return 0;
 }
