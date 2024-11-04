@@ -2,52 +2,52 @@
 
 #define TAM 10
 
-typedef struct{
-  int valores[TAM];
-  int n;
-}Lista;
+typedef struct{ // aqui vamos criar a estrutura da lista
+  int valores[TAM]; // aqui vamos criar um array de inteiros com o tamanho da capacidade
+  int n; // aqui vamos criar a quantidade de elementos na lista
+}Lista; // aqui vamos criar o nome da estrutura
 
-int esta_cheia(Lista *lista){
-  return lista->n == TAM;
+int esta_cheia(Lista *lista){ //aqui vamos verificar se a lista esta cheia
+  return lista->n == TAM; // aqui vamos retornar se a quantidade de elementos na lista for igual a capacidade da lista
 }
 
-int esta_vazia(Lista *lista){
-  return lista->n == 0;
+int esta_vazia(Lista *lista){ //aqui vamos verificar se a lista esta vazia
+  return lista->n == 0; // aqui vamos retornar se a quantidade de elementos na lista for igual a zero
 }
 
-int encontrar_posicao(Lista *lista, int valor){
-  for(int i = 0; i < lista->n; i++){
-    if(lista->valores[i] == valor){
-      return i;
+int encontrar_posicao(Lista *lista, int valor){ // aqui vamos encontrar a posição do valor
+  for(int i = 0; i < lista->n; i++){ // aqui vamos iterar sobre a lista
+    if(lista->valores[i] == valor){ // aqui vamos verificar se o valor na posição i é igual ao valor
+      return i; // aqui vamos retornar a posição do valor
     }
   }
-  return -1;
+  return -1; // aqui vamos retornar -1 se não encontrar o valor
 }
 
-void deslocar_direita(Lista *lista, int indice){
-  for(int i = lista->n; i > indice; i--){
-    lista->valores[i] = lista->valores[i-1];
+void deslocar_direita(Lista *lista, int indice){ // aqui vamos deslocar para a direita
+  for(int i = lista->n; i > indice; i--){ // aqui vamos iterar sobre a lista 
+    lista->valores[i] = lista->valores[i-1]; // aqui vamos deslocar para a direita
   }
 }
 
-void deslocar_esquerda(Lista *lista, int indice){
-  for(int i = indice; i < lista->n-1; i++){
-    lista->valores[i] = lista->valores[i+1];
+void deslocar_esquerda(Lista *lista, int indice){ // aqui vamos deslocar para a esquerda 
+  for(int i = indice; i < lista->n-1; i++){ // aqui vamos iterar sobre a lista
+    lista->valores[i] = lista->valores[i+1]; // aqui vamos deslocar para a esquerda
   }
 }
 
-int inserir(Lista *lista, int valor){
-  if(esta_cheia(lista)){
-    return 0;
+int inserir(Lista *lista, int valor){ // aqui vamos inserir um valor na lista
+  if(esta_cheia(lista)){ // aqui vamos verificar se a lista esta cheia
+    return 0; // aqui vamos retornar 0 se a lista estiver cheia
   }
-  int i = 0;
+  int i = 0; // aqui vamos criar um contador
   while(i < lista->n && valor >= lista->valores[i]){
     i++;
   }
-  deslocar_direita(lista, i);
-  lista->valores[i] = valor;
-  lista->n++;
-  return 1;
+  deslocar_direita(lista, i); // aqui vamos deslocar para a direita
+  lista->valores[i] = valor; // aqui vamos inserir o valor na posição i
+  lista->n++;  // aqui vamos incrementar a quantidade de elementos na lista
+  return 1; // aqui vamos retornar 1 se o valor foi inserido
 
 }
 

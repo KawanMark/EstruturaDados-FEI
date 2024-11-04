@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/workspaces/EstruturaDados-FEI/Pilha(stack) - Dinamica",
-      "program": "/workspaces/EstruturaDados-FEI/Pilha(stack) - Dinamica/build/Debug/outDebug",
+      "cwd": "/workspaces/EstruturaDados-FEI/Arvore Binaria",
+      "program": "/workspaces/EstruturaDados-FEI/Arvore Binaria/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

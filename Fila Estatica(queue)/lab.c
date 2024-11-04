@@ -1,25 +1,25 @@
 #include <stdio.h>
 #define CAP 100
 
-typedef struct{
-    int dados[CAP];
-    int head;
-    int tail;
-    int qtd;
+typedef struct{ //aqui vamos criar a estrutura da fila
+    int dados[CAP]; //aqui vamos criar um array de inteiros com o tamanho da capacidade
+    int head; //aqui vamos criar a cabeça da fila
+    int tail; // aqui vamos criar a calda da fila
+    int qtd; //aqui vamos criar a quantidade de elementos na fila
 } Queue;
 
-void inicializar(Queue *queue){
-    queue->head = 0;
-    queue->tail = 0;
-    queue->qtd = 0;
+void inicializar(Queue *queue){ //aqui vamos inicializar a fila
+    queue->head = 0; //aqui vamos inicializar a cabeça da fila
+    queue->tail = 0; //aqui vamos inicializar a calda da fila
+    queue->qtd = 0; //aqui vamos inicializar a quantidade de elementos na fila
 }
 
-int (is_full)(Queue *queue){
-    return queue->qtd == CAP;
+int (is_full)(Queue *queue){ //aqui vamos verificar se a fila esta cheia
+    return queue->qtd == CAP; // aqui vamos retornar se a quantidade de elementos na fila for igual a capacidade da fila
 }
 
-int (is_empty)(Queue *queue){
-    return queue->qtd == 0;
+int (is_empty)(Queue *queue){ //aqui vamos verificar se a fila esta vazia
+    return queue->qtd == 0; // aqui vamos retornar se a quantidade de elementos na fila for igual a zero 
 }
 
 int (enqueue)(Queue *queue, int valor){
