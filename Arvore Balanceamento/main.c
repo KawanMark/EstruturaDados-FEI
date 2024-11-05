@@ -1,273 +1,282 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct Vertice{
-    int valor;
-    struct Vertice* esq;
-    struct Vertice* dir;
-    struct Vertice* pai;
-    int altura;
+typedef struct Vertice {
+  int valor;
+  struct Vertice *esq;
+  struct Vertice *dir;
+  struct Vertice *pai;
 } Vertice;
 
-typedef struct Arvore{
-    Vertice* raiz;
-    int qtde;
+typedef struct Arvore {
+  Vertice *raiz;
+  int qtde;
 } Arvore;
 
-int MAX(int x, int y) {
-    return (x >= y) ? x : y;
-}
-
-int altura(Vertice *x) {
-    if (x == NULL) {
-        return -1;
+void RotacaoEsquerda(Arvore *arvore, Vertice *x) {
+    Vertice* y = x->dir;
+    Vertice* b = y->esq;
+    Vertice *pai = x->pai;
+    
+    if(x->pai == NULL){
+        arvore->raiz = y;
+        y->pai = NULL;
+    } else {
+        y->pai = x->pai;
     }
-    return MAX(altura(x->esq), altura(x->dir)) + 1;
-}
-
-int fatorBalanceamento(Vertice *x) {
-    return altura(x->dir) - altura(x->esq);
-}
-
-// aux: ponteiro temporário para armazenar a subárvore que será movida durante a rotação
-// fb: fator de balanceamento
-// x: ponteiro para um nó
-// y: ponteiro para o nó filho de x que será "promovido" durante a rotação
-Vertice *rotacao_esquerda(Vertice *x) {
-    Vertice *y = x->dir;
-    Vertice *aux = y->esq;
-
+    
     y->esq = x;
-    x->dir = aux;
+    x->pai = y;
+    
+    x->dir = b;
+    if(b != NULL){
+        b->pai = x;
+    }
+}
 
-    x->altura = MAX(altura(x->esq), altura(x->dir)) + 1;
-    y->altura = MAX(altura(y->esq), altura(y->dir)) + 1;
+void RotacaoDireita(Arvore *arvore, Vertice *x) {
+    Vertice* y = x->esq;
+    Vertice* b = y->dir;
+    Vertice *pai = x->pai;
+    
+    if(x->pai == NULL){
+        arvore->raiz = y;
+        y->pai = NULL;
+    } else {
+        y->pai = x->pai;
+    }
+    
+    y->dir = x;
+    x->pai = y;
+    
+    x->esq = b;
+    if(b != NULL){
+        b->pai = x;
+    }
+}
 
+
+/*
+void RotacaoDireita(Arvore *arvore, Vertice *x) {
+  Vertice* a = x->esq;
+  Vertice* direito = x->dir;
+  
+  a->pai = x->pai;
+  x->pai = a;
+  
+  x->esq = direito;
+  
+  if(direito!= NULL){
+      direito->pai = x;
+  }
+  
+  a->dir = x;
+  if(arvore->raiz == x){
+      arvore->raiz = a;
+  }
+  
+}
+*/
+
+int MAX(int x, int y) {
+  if (x >= y)
+    return x;
+  else
     return y;
 }
 
-Vertice* rotacao_direita(Vertice *y) {
-    Vertice *x = y->esq;
-    Vertice *aux = x->dir;
-
-    x->dir = y;
-    y->esq = aux;
-
-    y->altura = MAX(altura(y->esq), altura(y->dir)) + 1;
-    x->altura = MAX(altura(x->esq), altura(x->dir)) + 1;
-
-    return x;
+int altura(Vertice *x) {
+  if (x == NULL) {
+    return -1;
+  }
+  return MAX(altura(x->esq), altura(x->dir)) + 1;
 }
 
-Vertice* balancear(Vertice* v) {
-    v->altura = 1 + MAX(altura(v->esq), altura(v->dir));
-
-    int fb = fatorBalanceamento(v);
-
-    if (fb > 1 && fatorBalanceamento(v->dir) >= 0) {
-        return rotacao_esquerda(v);
+int fatorBalanceamento(Vertice *x) { return altura(x->dir) - altura(x->esq); }
+    
+void balanceie(Arvore *arvore, Vertice *x) {
+    //int r = fatorBalanceamento(x);
+    
+    if(fatorBalanceamento(x) >= 2 && fatorBalanceamento(x->dir) >=0){
+        RotacaoEsquerda(arvore, x);
     }
-
-    if (fb > 1 && fatorBalanceamento(v->dir) < 0) {
-        v->dir = rotacao_direita(v->dir);
-        return rotacao_esquerda(v);
+    else if(fatorBalanceamento(x) >=2 && fatorBalanceamento(x->dir) < 0){
+        RotacaoDireita(arvore, x->dir);
+        RotacaoEsquerda(arvore, x);
     }
-
-    if (fb < -1 && fatorBalanceamento(v->esq) <= 0) {
-        return rotacao_direita(v);
+    else if(fatorBalanceamento(x) <= -2 && fatorBalanceamento(x->esq) <= 0){
+        RotacaoDireita(arvore, x);
     }
-
-    if (fb < -1 && fatorBalanceamento(v->esq) > 0) {
-        v->esq = rotacao_esquerda(v->esq);
-        return rotacao_direita(v);
-    }
-
-    return v;
-}
-
-// Funções de percurso
-void in_ordem(Vertice *raiz) {
-    if (raiz != NULL) {
-        in_ordem(raiz->esq);
-        printf("%d ", raiz->valor);
-        in_ordem(raiz->dir);
+    else if(fatorBalanceamento(x) <= -2 && fatorBalanceamento(x->esq) >0){
+        RotacaoEsquerda(arvore, x->esq);
+        RotacaoEsquerda(arvore, x);
     }
 }
 
-void pre_ordem(Vertice *raiz) {
-    if (raiz != NULL) {
-        printf("%d ", raiz->valor);
-        pre_ordem(raiz->esq);
-        pre_ordem(raiz->dir);
-    }
-}
+int insere(Arvore *arvore, int valor) {
+  Vertice *novo = malloc(sizeof(Vertice));
+  novo->dir = NULL;
+  novo->esq = NULL;
+  novo->pai = NULL;
+  novo->valor = valor;
 
-void pos_ordem(Vertice *raiz) {
-    if (raiz != NULL) {
-        pos_ordem(raiz->esq);
-        pos_ordem(raiz->dir);
-        printf("%d ", raiz->valor);
-    }
-}
+  Vertice *anterior = NULL;
+  Vertice *atual = arvore->raiz;
 
-// Funções de criação
-Vertice *cria_vertice(int valor){
-    Vertice* novo = malloc(sizeof(Vertice));
-    novo->dir = NULL;
-    novo->esq = NULL;
-    novo->pai = NULL;
-    novo->valor = valor;
-    novo->altura = 1;
-    return novo;
-}
-
-Arvore *cria_arvore(){
-    Arvore* arvore = malloc(sizeof(Arvore));
-    arvore->raiz = NULL;
-    arvore->qtde = 0;
-    return arvore;
-}
-
-// Função de inserção
-void inserir(Arvore* arvore, int valor) {
-    Vertice* novo = cria_vertice(valor); // Crie um novo vértice com o valor recebido por parâmetro
-    if (arvore->raiz == NULL) { // Se a árvore for vazia, faça do novo vértice a raíz da árvore
-        arvore->raiz = novo;
+  while (atual != NULL) {
+    anterior = atual;
+    if (valor <= atual->valor) {
+      atual = atual->esq;
     } else {
-        Vertice* atual = arvore->raiz;
-        Vertice* pai = NULL;
-        // Percorra os vértices da árvore comparando o valor a ser inserido com o valor do vértice atual
-        while (atual != NULL) {
-            pai = atual;
-            if (valor < atual->valor) { // Se o valor a ser inserido for menor que o valor do nó atual
-                atual = atual->esq; // mover para a subárvore esquerda
-            } else {
-                atual = atual->dir; // caso contrário, mover para a subárvore direita
-            }
-        }
-        // Após o final do percurso, verifique a posição de inserção, a partir do vértice anterior (pai), e insira o novo vértice nesta posição
-        novo->pai = pai;
-        if (valor < pai->valor) {
-            pai->esq = novo;
-        } else {
-            pai->dir = novo;
-        }
-        while(pai != NULL){
-            
-        }
+      atual = atual->dir;
     }
-    arvore->qtde++;
+  }
+
+  novo->pai = anterior;
+  if (anterior != NULL) {
+    if (valor <= anterior->valor) {
+      anterior->esq = novo;
+    } else {
+      anterior->dir = novo;
+    }
+  } else {
+    arvore->raiz = novo;
+  }
+  arvore->qtde++;
+
+  Vertice *temp = novo->pai;
+  while (temp != NULL) {
+    balanceie(arvore, temp);
+    temp = temp->pai;
+  }
+  return 1;
 }
 
-// Função de remoção
-int remover_vertice(Arvore* arvore, Vertice* vertice) {
-    // Verifique quantos filhos o vértice a ser removido possui;
-    int filhos = (vertice->esq != NULL) + (vertice->dir != NULL);
-    
-    // Se o vértice não tiver filhos, verifique se ele é a raíz ou filho esquerdo ou direito de seu pai, faça NULL na posição correspondente;
-    
-   if (filhos == 0) { // Se o vértice não tiver filhos
-        if (vertice->pai == NULL) { // Se o vértice for a raiz
-            arvore->raiz = NULL;
-        } else if (vertice == vertice->pai->esq) { // Se o vértice for filho esquerdo
-            vertice->pai->esq = NULL;
-        } else { // Se o vértice for filho direito
-            vertice->pai->dir = NULL;
-        }
+int remover(Arvore *arvore, Vertice *x) {
+  int filhos = 0;
+
+  if (x != NULL && x->esq != NULL) {
+    filhos++;
+  }
+  if (x != NULL && x->dir != NULL) {
+    filhos++;
+  }
+
+  Vertice *pai = x->pai;
+  if (filhos == 0) {
+    if (pai != NULL) {
+      if (pai->esq == x) {
+        pai->esq = NULL;
+      } else {
+        pai->dir = NULL;
+      }
+    } else {
+      arvore->raiz = NULL;
     }
-    
-    //. Se o vértice tiver um filho, faça esse filho ser filho de seu pai considerando se o vértice é filho esquerdo ou direito;
-    
-    else if(filhos == 1){ //se o vertice tiver um filho
-        Vertice* filho;
-        if (vertice->esq != NULL) {
-            filho = vertice->esq;
-        } else {
-            filho = vertice->dir;
-        }
-        
-        if(vertice->pai == NULL){
-            arvore->raiz = filho;
-        } else if (vertice == vertice->pai->esq) { // Se o vértice for filho esquerdo
-            vertice->pai->esq = filho;
-        } else { // Se o vértice for filho direito
-            vertice->pai->dir = filho;
-        }
-        filho->pai = vertice->pai;
-    }
-    // Se o vértice tiver dois filhos, encontre o vértice mais à direita do filho esquerdo, troque os valores do vértice a ser removido com o vértice encontrado, chame a função de remoção passando a referência do vértice encontrado.
-    else { // Se o vértice tiver dois filhos
-        Vertice* sucessor = vertice->esq;
-        while (sucessor->dir != NULL) {
-            sucessor = sucessor->dir;
-        }
-        vertice->valor = sucessor->valor;
-        return remover_vertice(arvore, sucessor);
-    }
-    free(vertice);
     arvore->qtde--;
-    return 1;
+  } else if (filhos == 1) {
+    Vertice *filho = x->esq;
+    if (filho == NULL)
+      filho = x->dir;
+
+    if (pai == NULL)
+      arvore->raiz = filho;
+    else {
+      if (pai->esq == x)
+        pai->esq = filho;
+      else
+        pai->dir = filho;
+    }
+    filho->pai = pai;
+    arvore->qtde--;
+  } else {
+    Vertice *sucessor = x;
+    sucessor = sucessor->dir;
+    while (sucessor->esq != NULL)
+      sucessor = sucessor->esq;
+    x->valor = sucessor->valor;
+    return remover(arvore, sucessor);
+  }
+
+  return 1;
 }
 
-// Função de busca
-Vertice *buscar_valor(Arvore* arvore, int valor) {
-    Vertice* atual = arvore->raiz;
-    while (atual != NULL) {
-        if (valor < atual->valor) {
-            atual = atual->esq;
-        } else if (valor > atual->valor) {
-            atual = atual->dir;
-        } else {
-            return atual;
-        }
-    }
-    return NULL;
+int buscar_e_remover(Arvore *arvore, int valor) {
+  Vertice *atual = arvore->raiz;
+  while (atual != NULL) {
+    if (valor < atual->valor)
+      atual = atual->esq;
+    else if (valor > atual->valor)
+      atual = atual->dir;
+    else
+      return remover(arvore, atual);
+  }
+  return 0;
 }
 
-// Função para liberar a memória da árvore
-void liberar_arvore(Vertice* vertice) {
-    if (vertice != NULL) {
-        liberar_arvore(vertice->esq);
-        liberar_arvore(vertice->dir);
-        free(vertice);
-    }
+int getValor(Arvore *arvore) { return arvore->qtde; }
+
+void imprimeInOrdem(Vertice *raiz) {
+  if (raiz != NULL) {
+    imprimeInOrdem(raiz->esq);
+    printf("%d ", raiz->valor);
+    imprimeInOrdem(raiz->dir);
+  }
+}
+
+void imprimePosOrdem(Vertice *raiz) {
+  if (raiz != NULL) {
+    imprimePosOrdem(raiz->esq);
+    imprimePosOrdem(raiz->dir);
+    printf("%d ", raiz->valor);
+  }
+}
+
+void testeInsere(Arvore *arvore, int valor) {
+  if (insere(arvore, valor)) {
+    printf("valor %d inserido na arvore", valor);
+    printf("\nIn-Ordem: ");
+    imprimeInOrdem(arvore->raiz);
+    printf("\nPos-Ordem: ");
+    imprimePosOrdem(arvore->raiz);
+    printf("\n======== Total: %d nos ===========\n", getValor(arvore));
+  }
+}
+
+void testeRemove(Arvore *arvore, int valor) {
+  if (buscar_e_remover(arvore, valor)) {
+    printf("valor %d removido na arvore", valor);
+    printf("\nIn-Ordem: ");
+    imprimeInOrdem(arvore->raiz);
+    printf("\nPos-Ordem: ");
+    imprimePosOrdem(arvore->raiz);
+    printf("\n======== Total: %d nos ===========\n", getValor(arvore));
+  } else {
+    printf("valor %d NAO removido na arvore\n", valor);
+  }
 }
 
 int main(void) {
-    int dados[] = {5, 3, 8, 2, 4, 7, 9, 1, 6, 10};
-    Arvore *arvore = cria_arvore();
-    
-    for(int i = 0; i < 10; i++){
-        inserir(arvore, dados[i]);
-        printf("Inseriu %d mostra em ordem -> ", dados[i]);
-        in_ordem(arvore->raiz);
-        printf("\n");
-        printf("Inseriu %d mostra em pré-ordem -> ", dados[i]);
-        pre_ordem(arvore->raiz);
-        printf("\n");
-        printf("Inseriu %d mostra em pós-ordem -> ", dados[i]);
-        pos_ordem(arvore->raiz);
-        printf("\n");
-    }
+  Arvore *arvore = malloc(sizeof(Arvore));
+  arvore->raiz = NULL;
+  arvore->qtde = 0;
 
-    for(int i = 0; i < 10; i++){
-        Vertice *vertice = buscar_valor(arvore, dados[i]);
-        if(vertice != NULL){
-            remover_vertice(arvore, vertice);
-        }
-        printf("Removeu %d mostra em ordem -> ", dados[i]);
-        in_ordem(arvore->raiz);
-        printf("\n");
-        printf("Removeu %d mostra em pré-ordem -> ", dados[i]);
-        pre_ordem(arvore->raiz);
-        printf("\n");
-        printf("Removeu %d mostra em pós-ordem -> ", dados[i]);
-        pos_ordem(arvore->raiz);
-        printf("\n");
-    }
+  testeInsere(arvore, 54);
+  testeInsere(arvore, 48);
+  testeInsere(arvore, 62);
+  testeInsere(arvore, 56);
+  testeInsere(arvore, 55);
+  testeInsere(arvore, 58);
+  testeInsere(arvore, 59);
+  testeRemove(arvore, 48);
+  testeRemove(arvore, 55);
+  testeRemove(arvore, 58);
+  testeRemove(arvore, 62);
+  testeRemove(arvore, 50);
+  testeRemove(arvore, 60);
+  testeRemove(arvore, 54);
+  testeRemove(arvore, 59);
+  testeRemove(arvore, 56);
 
-    liberar_arvore(arvore->raiz);
-    free(arvore);
-        
-    return 0;
+  return 0;
 }
